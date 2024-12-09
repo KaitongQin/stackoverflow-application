@@ -1,0 +1,14 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE specific files
+.project
+.classpath
+.settings/
+.springBeans
+.sts4-cache
+*.iws
+*.iml
+*.ipr
