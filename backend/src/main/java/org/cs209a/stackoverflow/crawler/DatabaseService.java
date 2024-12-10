@@ -6,8 +6,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.cs209a.stackoverflow.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,8 +13,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
-@Service
-@Transactional
 public class DatabaseService {
     private static final int BATCH_SIZE = 1000;
     private final Logger logger = LoggerFactory.getLogger(DatabaseService.class);

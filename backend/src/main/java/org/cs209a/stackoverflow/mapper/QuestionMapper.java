@@ -1,7 +1,6 @@
 package org.cs209a.stackoverflow.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.cs209a.stackoverflow.model.Question;
@@ -9,7 +8,7 @@ import org.cs209a.stackoverflow.model.Topic;
 
 import java.util.List;
 
-@Mapper
+
 public interface QuestionMapper extends BaseMapper<Question> {
 
     /**
