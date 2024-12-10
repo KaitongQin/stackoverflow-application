@@ -1,5 +1,4 @@
 package org.cs209a.stackoverflow.crawler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,26 +4,25 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DataCollector {
     private static final Logger logger = LoggerFactory.getLogger(DataCollector.class);
-
+    private static final boolean FROM_JSON = true;
     private final StackOverflowService stackOverflowService;
     private final DatabaseService databaseService;
-
     // 存储采集到的数据
     private final List<JSONObject> questionList = new ArrayList<>();
     private final List<JSONObject> answerList = new ArrayList<>();
     private final List<JSONObject> commentList = new ArrayList<>();
     private final List<JSONObject> timelineList = new ArrayList<>();
-
     // 配置参数
     private final int pageSize;
     private final int pageStep;
-
     // 统计信息
     private int totalQuestions;
     private int noAnswerQuestions;
@@ -62,6 +61,10 @@ public class DataCollector {
 
     private void startNewCollection() {
         logger.info("Starting new collection");
+        if (FROM_JSON) {
+            loadJsonToDatabase();
+            return;
+        }
         collectQuestions();
         collectAnswers();
         collectComments();
@@ -185,11 +188,37 @@ public class DataCollector {
         logger.info("Comments collection completed, total comments: {}", commentList.size());
     }
 
-    private void saveToDatabase() {
-        logger.info("Saving data to database");
+    private void loadJsonToDatabase() {
+        logger.info("Reading json");
+        try (BufferedReader questionReader = new BufferedReader(new FileReader("questions.json"));
+             BufferedReader answerReader = new BufferedReader(new FileReader("answers.json"));
+             BufferedReader commentReader = new BufferedReader(new FileReader("comments.json"));
+             BufferedReader timelineReader = new BufferedReader(new FileReader("timeline.json"))) {
+            String line;
 
+            while ((line = questionReader.readLine()) != null) {
+                questionList.add(JSONObject.parseObject(line));
+            }
+            while ((line = answerReader.readLine()) != null) {
+                answerList.add(JSONObject.parseObject(line));
+            }
+            while ((line = commentReader.readLine()) != null) {
+                commentList.add(JSONObject.parseObject(line));
+            }
+            while ((line = timelineReader.readLine()) != null) {
+                timelineList.add(JSONObject.parseObject(line));
+            }
+            saveToDatabase();
+
+        } catch (Exception e) {
+            logger.error("Failed to read json", e);
+            throw new ApiException("Failed to read json", e);
+        }
+    }
+
+    private void saveToDatabase() {
         try {
-            databaseService.saveToDatabase(questionList, answerList, commentList,timelineList);
+            databaseService.saveToDatabase(questionList, answerList, commentList, timelineList);
             logger.info("Data collection completed successfully");
         } catch (Exception e) {
             logger.error("Database save failed", e);
