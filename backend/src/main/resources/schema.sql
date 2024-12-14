@@ -70,17 +70,17 @@ CREATE TABLE IF NOT EXISTS error
 -- 错误出现记录表：错误追踪
 CREATE TABLE IF NOT EXISTS error_occurrence
 (
-    id         SERIAL PRIMARY KEY,
-    error_type TEXT,
-    post_id    INT  NOT NULL,
-    context    TEXT NOT NULL-- 错误上下文
-
+    id          SERIAL PRIMARY KEY,
+    error_type  TEXT,
+    question_id INT,
+    answer_id   INT,
+    comment_id  INT
 );
 
 CREATE TABLE IF NOT EXISTS timeline
 (
     comment_id      INTEGER,      -- 评论ID，可能为空
-    creation_date   TIMESTAMP,         -- 事件创建日期
+    creation_date   TIMESTAMP,    -- 事件创建日期
     down_vote_count INTEGER,      -- 踩票数，可能为空
     owner_id        INTEGER,      -- 事件所有者的用户ID，可能为空
     post_id         INTEGER,      -- 帖子ID，可能为空
