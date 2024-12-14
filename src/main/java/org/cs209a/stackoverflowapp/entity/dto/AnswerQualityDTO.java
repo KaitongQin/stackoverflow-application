@@ -39,8 +39,8 @@ public class AnswerQualityDTO {
 
     @Data
     public static class GroupStats {
-        private int rangeStart;
-        private int rangeEnd;
+        private float rangeStart;
+        private float rangeEnd;
         private double avgQualityScore;
         private int count;
         private double acceptedRate;

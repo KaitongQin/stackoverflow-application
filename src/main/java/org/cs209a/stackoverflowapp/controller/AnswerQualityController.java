@@ -6,10 +6,7 @@ import org.cs209a.stackoverflowapp.entity.dto.AnswerAnalysisParams;
 import org.cs209a.stackoverflowapp.entity.dto.AnswerQualityDTO;
 import org.cs209a.stackoverflowapp.service.AnswerQualityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping(PathConstant.API + "/answer-quality")
 @RestController
@@ -27,7 +24,7 @@ public class AnswerQualityController {
     private AnswerQualityService answerQualityService;
 
     @PostMapping
-    public AnswerQualityDTO getTopNAnswerQuality(@RequestParam AnswerAnalysisParams params) {
+    public AnswerQualityDTO getTopNAnswerQuality(@RequestBody AnswerAnalysisParams params) {
         return answerQualityService.analyze(params);
     }
 

@@ -28,7 +28,9 @@ public class TopicController {
     // Overflow 上最常见的 Java 相关话题会很有意思。
     //请回答以下问题：Stack Overflow 上最常被提及的前 N 个 Java 话题是什么？
     @GetMapping
-    public List<TopicDTO> getTopNJavaTopics(@RequestParam float weight, @RequestParam int n) {
-        return topicService.getTopNJavaTopics(weight, n);
+    public List<TopicDTO> getTopNJavaTopics(@RequestParam float weight,
+                                            @RequestParam int n,
+                                            @RequestParam(required = false) String filter) {
+        return topicService.getTopNJavaTopics(weight, n,filter);
     }
 }

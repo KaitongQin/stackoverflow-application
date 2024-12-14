@@ -70,11 +70,11 @@ CREATE TABLE IF NOT EXISTS error
 -- 错误出现记录表：错误追踪
 CREATE TABLE IF NOT EXISTS error_occurrence
 (
-    id         SERIAL PRIMARY KEY,
-    error_type TEXT,
-    post_id    INT  NOT NULL,
-    context    TEXT NOT NULL-- 错误上下文
-
+    id          SERIAL PRIMARY KEY,
+    error_type  TEXT,
+    question_id INT,
+    answer_id   INT,
+    comment_id  INT
 );
 
 CREATE TABLE IF NOT EXISTS timeline
