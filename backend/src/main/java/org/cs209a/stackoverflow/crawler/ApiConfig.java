@@ -8,7 +8,7 @@ public class ApiConfig {
     private static final Properties properties = new Properties();
 
     static {
-        try (InputStream input = ApiConfig.class.getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream input = ApiConfig.class.getClassLoader().getResourceAsStream("application.properties")) {
             // 加载配置文件
             properties.load(input);
         } catch (IOException ex) {

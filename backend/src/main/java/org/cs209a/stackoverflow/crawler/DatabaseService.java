@@ -3,15 +3,16 @@ package org.cs209a.stackoverflow.crawler;
 import com.alibaba.fastjson.JSONObject;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.cs209a.stackoverflow.model.Answer;
 import org.cs209a.stackoverflow.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DatabaseService {
     private static final int BATCH_SIZE = 1000;
@@ -39,18 +40,10 @@ public class DatabaseService {
         stanfordCoreNLPService = new StanfordCoreNLPService();
     }
 
-    private static User getUser(JSONObject json) {
-        JSONObject ownerJson = json.getJSONObject("owner");
+    private static User getUser(JSONObject json, String key) {
+        JSONObject ownerJson = json.getJSONObject(key);
         if (ownerJson == null) {
-            User user = new User();
-            user.setAccountId(-1);
-            user.setUserId(-1);
-            user.setReputation(-1);
-            user.setUserType("does_not_exist");
-            user.setLink("");
-            user.setDisplayName("");
-            user.setProfileImage("");
-            return user;
+            return null;
         }
         User user = new User();
         user.setAccountId(ownerJson.getInteger("account_id") == null ? -1 : ownerJson.getInteger("account_id"));
@@ -82,9 +75,12 @@ public class DatabaseService {
             prepareStatements(conn);
 
             for (JSONObject record : timeLine) {
-                User user = getUser(record);
-                addTimelineBatch(record, user);
-                addOwnerBatch(user);
+                User user = getUser(record, "owner") == null ? getUser(record, "user") : getUser(record, "owner");
+
+                if (user != null) {
+                    addTimelineBatch(record, user);
+                    addOwnerBatch(user);
+                }
 
                 timelineBatchCount++;
                 if (timelineBatchCount >= BATCH_SIZE) {
@@ -114,15 +110,15 @@ public class DatabaseService {
     }
 
     private void addTimelineBatch(JSONObject record, User user) throws SQLException {
-        timelineStmt.setInt(1, record.getInteger("comment_id") == null ? -1 : record.getInteger("comment_id"));
+        timelineStmt.setInt(1, record.getInteger("comment_id") == null ? 0 : record.getInteger("comment_id"));
         timelineStmt.setTimestamp(2, convertDate(record.getInteger("creation_date")));
-        timelineStmt.setInt(3, record.getInteger("down_vote_count") == null ? -1 : record.getInteger("down_vote_count"));
+        timelineStmt.setInt(3, record.getInteger("down_vote_count") == null ? 0 : record.getInteger("down_vote_count"));
         timelineStmt.setInt(4, user.getAccountId());
-        timelineStmt.setInt(5, record.getInteger("post_id") == null ? -1 : record.getInteger("post_id"));
+        timelineStmt.setInt(5, record.getInteger("post_id") == null ? 0 : record.getInteger("post_id"));
         timelineStmt.setInt(6, record.getInteger("question_id"));
         timelineStmt.setString(7, record.getString("revision_guid"));
         timelineStmt.setString(8, record.getString("timeline_type"));
-        timelineStmt.setInt(9, record.getInteger("up_vote_count") == null ? -1 : record.getInteger("up_vote_count"));
+        timelineStmt.setInt(9, record.getInteger("up_vote_count") == null ? 0 : record.getInteger("up_vote_count"));
         timelineStmt.setInt(10, user.getAccountId());
         timelineStmt.addBatch();
     }
@@ -177,7 +173,7 @@ public class DatabaseService {
 
             for (JSONObject question : questions) {
                 // 插入问题相关数据
-                User owner = getUser(question);
+                User owner = getUser(question, "owner");
                 addQuestionBatch(question, owner);
                 addOwnerBatch(owner);
 
@@ -246,7 +242,7 @@ public class DatabaseService {
             prepareStatements(conn);
 
             for (JSONObject answer : answers) {
-                User owner = getUser(answer);
+                User owner = getUser(answer, "owner");
                 addAnswerBatch(answer, owner);
                 addOwnerBatch(owner);
 
@@ -303,7 +299,7 @@ public class DatabaseService {
             prepareStatements(conn);
 
             for (JSONObject comment : comments) {
-                User owner = getUser(comment);
+                User owner = getUser(comment, "owner");
                 addCommentBatch(comment, owner);
                 addOwnerBatch(owner);
 
@@ -354,5 +350,96 @@ public class DatabaseService {
         conn.commit();
     }
 
+    public void getAllError() {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM answer");
+                 ResultSet resultSet = stmt.executeQuery()) {
+                // 初始化一个列表存储 Answer 对象
+                List<Answer> answers = new ArrayList<>();
+
+                // 遍历结果集，将每一行映射为 Answer 对象
+                while (resultSet.next()) {
+                    // 假设 Answer 有一个构造函数或静态工厂方法
+                    Answer answer = new Answer();
+                    answer.setId(resultSet.getInt("id"));
+                    answer.setBody(resultSet.getString("body"));
+                    answer.setCreationDate(resultSet.getTimestamp("creation_date"));
+                    answer.setOwnerId(resultSet.getInt("owner_id"));
+                    answer.setQuestionId(resultSet.getInt("question_id"));
+                    answer.setScore(resultSet.getInt("score"));
+                    answer.setIsAccepted(resultSet.getBoolean("is_accepted"));
+                    answers.add(answer);
+                }
+
+                Map<String, Integer> errors = new ConcurrentHashMap<>();
+
+                for (Answer answer : answers) {
+                    errors.putAll(getAllErrors(answer.getBody()));
+                }
+                errors.keySet().stream()
+                        .sorted((key1, key2) ->
+                                errors.get(key2).compareTo(errors.get(key1))) // 按值降序排序
+                        .forEach(key -> System.out.println(key + ": " + errors.get(key)));
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to insert timeline record", e);
+            throw new RuntimeException("Failed to insert timeline record", e);
+        } catch (Exception e) {
+            logger.error("Failed to insert timeline record due to exception", e);
+            throw new RuntimeException("Failed to insert timeline record", e);
+        }
+
+    }
+
+    public Map<String, Integer> getAllErrors(String htmlText) {
+        // 预定义标准Java异常和错误
+        Set<String> standardErrors = Set.of(
+                "OutOfMemoryError", "StackOverflowError", "ThreadDeath", "VirtualMachineError",
+                "NullPointerException", "ArrayIndexOutOfBoundsException", "IllegalArgumentException",
+                "IllegalStateException", "ConcurrentModificationException", "ClassCastException",
+                "NumberFormatException", "IndexOutOfBoundsException", "IOException", "SQLException",
+                "ClassNotFoundException", "FileNotFoundException", "InterruptedException"
+                // ... 添加更多标准异常
+        );
+
+        // 编译正则表达式模式
+        Pattern errorPattern = Pattern.compile(
+                "(?<!\\w)(" + // 确保前面不是字母数字
+                        "(java\\.[\\w.]+\\.)?" + // 可选的java包名
+                        "([A-Z][a-zA-Z0-9]+?)" + // 异常名称主体
+                        "(Exception|Error)" + // 以Exception或Error结尾
+                        ")(?!\\w)" // 确保后面不是字母数字
+        );
+
+        Map<String, Integer> errors = new ConcurrentHashMap<>();
+
+        // 使用正则表达式匹配
+        Matcher matcher = errorPattern.matcher(htmlText);
+        while (matcher.find()) {
+            String error = matcher.group(1);
+
+            // 过滤条件
+            if (shouldCountError(error, standardErrors)) {
+                errors.merge(error, 1, Integer::sum);
+            }
+        }
+
+        return errors;
+    }
+
+    private boolean shouldCountError(String error, Set<String> standardErrors) {
+        // 过滤条件：
+        // 1. 是标准Java异常
+        // 2. 或者是完整的包名限定异常（如 java.io.IOException）
+        // 3. 不是方法名或变量名（如 handleError）
+        // 4. 不是HTML/URL片段
+        return standardErrors.contains(error) ||
+                error.startsWith("java.") ||
+                (error.matches("[A-Z][a-zA-Z0-9]+?(Exception|Error)") &&
+                        !error.matches(".*[<>].*") && // 过滤HTML标签
+                        !error.toLowerCase().contains("handle") &&
+                        !error.toLowerCase().contains("set"));
+    }
 }
 

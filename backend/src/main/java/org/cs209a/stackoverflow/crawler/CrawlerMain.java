@@ -16,6 +16,7 @@ public class CrawlerMain {
             DataCollector dataCollector = new DataCollector(databaseService, PAGE_SIZE, PAGE_STEP);
             // 在禁用外键检查的状态下执行数据收集
             try {
+//                databaseService.getAllError();
                 dataCollector.collectData();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to collect data", e);

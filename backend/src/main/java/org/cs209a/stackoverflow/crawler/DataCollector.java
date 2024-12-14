@@ -32,7 +32,6 @@ public class DataCollector {
         this.pageSize = pageSize;
         this.pageStep = pageStep;
         this.stackOverflowService = new StackOverflowService(pageSize);
-        refresh();
     }
 
     public void refresh() {
@@ -65,6 +64,7 @@ public class DataCollector {
             loadJsonToDatabase();
             return;
         }
+        refresh();
         collectQuestions();
         collectAnswers();
         collectComments();
