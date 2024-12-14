@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+answers.json
+comments.json
+questions.json
+timeline.json

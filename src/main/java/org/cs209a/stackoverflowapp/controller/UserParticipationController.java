@@ -24,11 +24,8 @@ public class UserParticipationController {
     @GetMapping
     List<ParticipationDTO> getTopNParticipationTopics(
             @RequestParam int n,
-            @RequestParam float w1,
-            @RequestParam float w2,
-            @RequestParam float w3,
-            @RequestParam float w4
+            @RequestParam int R
     ) {
-        return participationService.getTopNParticipationTopics(n, w1, w2, w3, w4);
+        return participationService.getTopNParticipationTopics(n, R);
     }
 }

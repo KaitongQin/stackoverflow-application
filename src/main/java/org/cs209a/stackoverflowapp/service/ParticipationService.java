@@ -14,8 +14,8 @@ public class ParticipationService {
     @Autowired
     private ParticipationDTOMapper participationMapper;
 
-    public List<ParticipationDTO> getTopNParticipationTopics(int n, float w1, float w2, float w3, float w4) {
-        return participationMapper.getTopNParticipationTopics(n, w1, w2, w3, w4);
+    public List<ParticipationDTO> getTopNParticipationTopics(int n, int R) {
+        return participationMapper.getTopNParticipationTopics(n, R);
     }
 
 }
