@@ -15,20 +15,56 @@ public interface TopicDTOMapper {
      * @return 前 N 个标签及其加权分数和频率
      */
     @Select("""
-        WITH tag_stats AS (SELECT qt.tag_name,
-                                          COUNT(qt.question_id) AS base_frequency, -- 该标签问题的数量
-                                          AVG(q.view_count)     AS avg_view_count  -- 该标签问题的平均浏览量
-                                   FROM question_tag qt
-                                            JOIN
-                                        question q ON qt.question_id = q.id
-                                   GROUP BY qt.tag_name)
-                SELECT tag_name,                                                                -- 标签名称
-                       base_frequency,                                                          -- 基础频率
-                       avg_view_count,                                                          -- 平均浏览量
-                       base_frequency * (1 + #{w1} * (avg_view_count / 10000)) AS weightedScore -- 加权分数
-                FROM tag_stats
-                ORDER BY weightedScore DESC
-                OFFSET 1
+        WITH tag_stats AS (
+            SELECT
+                qt.tag_name,
+                COUNT(qt.question_id) AS base_frequency, -- 该标签问题的数量
+                AVG(q.view_count) AS avg_view_count      -- 该标签问题的平均浏览量
+            FROM
+                question_tag qt
+                    JOIN question q ON qt.question_id = q.id
+            GROUP BY
+                qt.tag_name
+            ORDER BY
+                base_frequency DESC
+            LIMIT
+                70
+                OFFSET
+                1
+        ),
+             normalized_stats AS (
+                 SELECT
+                     tag_name,
+                     base_frequency,
+                     avg_view_count,
+                     -- z-score 归一化 base_frequency
+                     (base_frequency - AVG(base_frequency) OVER()) / NULLIF(STDDEV(base_frequency) OVER(), 0) AS normalized_frequency,
+                     -- z-score 归一化 avg_view_count
+                     (avg_view_count - AVG(avg_view_count) OVER()) / NULLIF(STDDEV(avg_view_count) OVER(), 0) AS normalized_view_count
+                 FROM
+                     tag_stats
+             ),
+             weighted_scores AS (
+                 SELECT
+                     tag_name,
+                     base_frequency,
+                     avg_view_count,
+                     normalized_frequency,
+                     normalized_view_count,
+                     -- 严格按照 Python 加权公式对齐
+                     #{w} * normalized_frequency + (1 - #{w}) * normalized_view_count AS weighted_score
+                 FROM
+                     normalized_stats
+             )
+        SELECT
+            tag_name,
+            base_frequency,
+            avg_view_count,
+            weighted_score
+        FROM
+            weighted_scores
+        ORDER BY
+            weighted_score DESC;
     """)
     List<TopicDTO> getTopNJavaTopics(@Param("w1") float w1);
 }
