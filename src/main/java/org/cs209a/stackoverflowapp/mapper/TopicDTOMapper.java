@@ -28,7 +28,7 @@ public interface TopicDTOMapper {
             ORDER BY
                 base_frequency DESC
             LIMIT
-                70
+                1000
                 OFFSET
                 1
         ),
@@ -52,7 +52,7 @@ public interface TopicDTOMapper {
                      normalized_frequency,
                      normalized_view_count,
                      -- 严格按照 Python 加权公式对齐
-                     #{w} * normalized_frequency + (1 - #{w}) * normalized_view_count AS weighted_score
+                     #{weight} * normalized_frequency + (1 - #{weight}) * normalized_view_count AS weighted_score
                  FROM
                      normalized_stats
              )
@@ -66,5 +66,5 @@ public interface TopicDTOMapper {
         ORDER BY
             weighted_score DESC;
     """)
-    List<TopicDTO> getTopNJavaTopics(@Param("w1") float w1);
+    List<TopicDTO> getTopNJavaTopics(@Param("weight") float weight);
 }

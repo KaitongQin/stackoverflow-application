@@ -26,6 +26,8 @@ public class ErrorService {
                     .limit(n)
                     .toList();
         }
-        return errors;
+        return errors.stream()
+                .limit(n)
+                .toList();
     }
 }
