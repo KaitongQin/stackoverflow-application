@@ -84,14 +84,9 @@ public interface AnswerQualityDTOMapper {
                             a.question_id,
                             a.score,
                             a.is_accepted,
-                            log(EXTRACT(EPOCH FROM (a.creation_date - q.creation_date))+1) AS time_gap,
-                            LENGTH(REGEXP_REPLACE(
-                                REGEXP_REPLACE(
-                                    REGEXP_REPLACE(a.body, '<[^>]+>', '', 'g'),
-                                    '&[^;]+;', '', 'g'),
-                                '\\s+', ' ', 'g')
-                            ) AS answer_length,
-                            log(u.reputation + 2) AS user_reputation,
+                            EXTRACT(EPOCH FROM (a.creation_date - q.creation_date)) AS time_gap,
+                            a.body_length answer_length,
+                            (u.reputation) AS user_reputation,
                             (CASE
                                 WHEN MAX(a.score) OVER (PARTITION BY a.question_id) = MIN(a.score) OVER (PARTITION BY a.question_id) THEN 1.0
                                 ELSE (a.score - MIN(a.score) OVER (PARTITION BY a.question_id))::float /
@@ -103,21 +98,11 @@ public interface AnswerQualityDTOMapper {
                         INNER JOIN "user" u ON a.owner_id = u.account_id
                         WHERE
                             CASE WHEN #{params.minAnswerLength} IS NOT NULL
-                                THEN LENGTH(REGEXP_REPLACE(
-                                        REGEXP_REPLACE(
-                                            REGEXP_REPLACE(a.body, '<[^>]+>', '', 'g'),
-                                            '&[^;]+;', '', 'g'),
-                                        '\\s+', ' ', 'g')
-                                    ) >= #{params.minAnswerLength}
+                                THEN a.body_length >= #{params.minAnswerLength}
                                 ELSE true END
                             AND
-                            CASE WHEN #{params.maxAnswerLength} IS NOT NULL 
-                                THEN LENGTH(REGEXP_REPLACE(
-                                        REGEXP_REPLACE(
-                                            REGEXP_REPLACE(a.body, '<[^>]+>', '', 'g'),
-                                            '&[^;]+;', '', 'g'),
-                                        '\\s+', ' ', 'g')
-                                    ) <= #{params.maxAnswerLength} 
+                            CASE WHEN #{params.maxAnswerLength} IS NOT NULL
+                                THEN a.body_length <= #{params.maxAnswerLength} 
                                 ELSE true END
                             AND CASE WHEN #{params.maxTimeGap} IS NOT NULL 
                                 THEN EXTRACT(EPOCH FROM (a.creation_date - q.creation_date)) <= #{params.maxTimeGap} 

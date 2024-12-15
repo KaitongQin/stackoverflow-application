@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS answer
     score         INT       NOT NULL, -- 得分
     is_accepted   BOOLEAN   NOT NULL, -- 是否被采纳
     owner_id      INT       NOT NULL, -- 回答者ID
-    creation_date TIMESTAMP NOT NULL  -- 创建时间          -- 内容许可证
+    creation_date TIMESTAMP NOT NULL,  -- 创建时间          -- 内容许可证
+    body_length   INT
 );
 
 -- 评论表
