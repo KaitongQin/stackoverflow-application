@@ -10,6 +10,7 @@ import org.cs209a.stackoverflowapp.entity.dto.AnswerQualityDTO.GroupedStats;
 import org.cs209a.stackoverflowapp.mapper.AnswerQualityDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -18,14 +19,21 @@ public class AnswerQualityService {
     @Autowired
     private AnswerQualityDTOMapper answerQualityDTOMapper;
 
+    @Transactional
     public AnswerQualityDTO analyze(AnswerAnalysisParams params) {
         validateParams(params);
 
         try {
+            // 先删除可能存在的临时表
+            answerQualityDTOMapper.dropTempTable();
+
+            // 创建临时表
+            answerQualityDTOMapper.createTempTable(params);
+
             AnswerQualityDTO result = new AnswerQualityDTO();
 
             // 获取基础统计和相关性分析
-            Map<String, Object> statsData = answerQualityDTOMapper.getBasicStats(params);
+            Map<String, Object> statsData = answerQualityDTOMapper.getBasicStats();
             setBasicStats(result, statsData);
             setCorrelations(result, statsData);
 
@@ -36,8 +44,13 @@ public class AnswerQualityService {
             groupedStats.setLengthGroups(answerQualityDTOMapper.getLengthGroups(params));
             result.setGroupedStats(groupedStats);
 
+            // 清理临时表
+            answerQualityDTOMapper.dropTempTable();
+
             return result;
         } catch (Exception e) {
+            // 确保发生异常时也清理临时表
+            answerQualityDTOMapper.dropTempTable();
             throw new RuntimeException("Failed to analyze answer quality", e);
         }
     }
