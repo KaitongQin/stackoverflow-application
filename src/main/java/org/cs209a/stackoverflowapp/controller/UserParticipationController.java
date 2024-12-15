@@ -26,6 +26,9 @@ public class UserParticipationController {
             @RequestParam int n,
             @RequestParam int R
     ) {
+        if(n <= 0 || R <= 0) {
+            return null;
+        }
         return participationService.getTopNParticipationTopics(n, R);
     }
 }

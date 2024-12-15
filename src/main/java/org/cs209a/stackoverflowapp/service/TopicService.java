@@ -2,7 +2,6 @@ package org.cs209a.stackoverflowapp.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.cs209a.stackoverflowapp.entity.dto.ErrorDTO;
 import org.cs209a.stackoverflowapp.entity.dto.TopicDTO;
 import org.cs209a.stackoverflowapp.mapper.TopicDTOMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,8 @@ public class TopicService {
         List<TopicDTO> topics = topicDTOMapper.getTopNJavaTopics(weight);
         if (filter != null && !filter.isEmpty()) {
             topics = topics.stream()
-                    .filter(topic -> topic.getTagName().contains(filter) ||
-                            topic.getTagName().equalsIgnoreCase(filter))
-                    .limit(n)
+                    .filter(topic -> // 标签名包含filter topic.getTagName().contains(filter) ||
+                            topic.getTagName().equalsIgnoreCase(filter)) // 标签名等于filter（忽略大小写）
                     .toList();
         }
         return topics.stream()

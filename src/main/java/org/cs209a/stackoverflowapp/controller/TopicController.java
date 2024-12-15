@@ -1,8 +1,5 @@
 package org.cs209a.stackoverflowapp.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.cs209a.stackoverflowapp.constant.PathConstant;
 import org.cs209a.stackoverflowapp.entity.dto.TopicDTO;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,6 +27,9 @@ public class TopicController {
     public List<TopicDTO> getTopNJavaTopics(@RequestParam float weight,
                                             @RequestParam int n,
                                             @RequestParam(required = false) String filter) {
+        if (weight < 0 || n <= 0) {
+            return null;
+        }
         return topicService.getTopNJavaTopics(weight, n,filter);
     }
 }

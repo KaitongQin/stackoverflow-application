@@ -3,6 +3,7 @@ package org.cs209a.stackoverflowapp.service;
 import lombok.RequiredArgsConstructor;
 import org.cs209a.stackoverflowapp.entity.dto.ParticipationDTO;
 import org.cs209a.stackoverflowapp.mapper.ParticipationDTOMapper;
+import org.cs209a.stackoverflowapp.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

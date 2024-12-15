@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +20,8 @@ public class ErrorService {
         List<ErrorDTO> errors = errorDTOMapper.getTopNJavaTopics(weight);
         if (filter != null && !filter.isEmpty()) {
             errors = errors.stream()
-                    .filter(error -> error.getErrorName().contains(filter) ||
-                            error.getErrorType().equalsIgnoreCase(filter))
-                    .limit(n)
+                    .filter(error -> error.getErrorName().contains(filter) || // 错误名包含filter
+                            error.getErrorType().equalsIgnoreCase(filter)) // 错误类型等于filter（忽略大小写）
                     .toList();
         }
         return errors.stream()
