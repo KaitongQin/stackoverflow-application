@@ -16,20 +16,11 @@ import java.util.List;
 @RequestMapping(PathConstant.API + "/error")
 @RequiredArgsConstructor
 public class ErrorController {
-    //    #### 3. 常见错误（15分）
-//开发人员在编码过程中常常会犯错误，导致代码中的 bug。这些错误表现为错误或异常，通常可以分为两类：
-//- **致命错误**：如 `OutOfMemoryError`，在运行时无法恢复。
-//- **异常**：包括已检查异常和运行时异常，开发人员可以在程序中进行处理。
-//请回答以下问题：在 Java 开发者中，最常讨论的前 N 种错误和异常是什么？
-//注意：标签是高层次的分类，可能无法涵盖低层次的错误或异常。因此，除了标签信息之外，你还需要进一步分析线程内容（例如问题文本和答案文本），可能需要使用正则表达式匹配等高级技术来识别错误或异常相关的信息。
-//```
-//错误频率 = 包含该错误的问题数
-//错误影响度 = 包含该错误的问题的平均浏览量
-//错误严重度 = 错误频率 * (1 + w1 * log(错误影响度))
+
     @Autowired
     private ErrorService errorService;
 
-    //
+    // 原有方法：获取最常见的 Top N 错误或异常
     @GetMapping
     public List<ErrorDTO> getTopNJavaErrors(@RequestParam float weight,
                                             @RequestParam int n,
@@ -40,4 +31,14 @@ public class ErrorController {
         return errorService.getTopNJavaErrors(weight, n, filter);
     }
 
+    // 新方法：获取指定名称的错误
+    @GetMapping("/specific")
+    public List<ErrorDTO> getSpecificJavaError(@RequestParam float weight,
+                                               @RequestParam int n,
+                                               @RequestParam String filter) {
+        if (weight < 0 || n <= 0 || filter == null || filter.isEmpty()) {
+            return List.of();
+        }
+        return errorService.getSpecificJavaError(weight, n, filter);
+    }
 }

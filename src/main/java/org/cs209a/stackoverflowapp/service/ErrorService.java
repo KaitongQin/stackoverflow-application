@@ -28,4 +28,14 @@ public class ErrorService {
                 .limit(n)
                 .toList();
     }
+
+    public List<ErrorDTO> getSpecificJavaError(float weight, int n, String filter) {
+        if (filter == null || filter.isEmpty()) {
+            return List.of(); // 如果 filter 为空，返回空列表
+        }
+        return errorDTOMapper.getTopNJavaTopics(1) // 直接获取全部数据
+                .stream()
+                .filter(error -> error.getErrorName().equals(filter)) // 只保留名称完全匹配的项
+                .toList();
+    }
 }
