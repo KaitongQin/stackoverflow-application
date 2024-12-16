@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="goBack">Back to Index</v-btn>
     <br>
     <v-img
       class="mb-4"
@@ -194,16 +195,21 @@ const correlations = ref<any>({});
 
 // 表格头部信息
 const basicStatsHeaders = ref([
-  { title: 'Metric', align: 'start', key: 'key' },
-  { title: 'Value', align: 'start', key: 'value' },
+  { text: 'Metric', align: 'start', value: 'key' },
+  { text: 'Value', align: 'start', value: 'value' },
 ]);
 
 const correlationHeaders = ref([
-  { title: 'Metric', align: 'start', key: 'key' },
-  { title: 'Coefficient', align: 'start', key: 'coefficient' },
-  { title: 'P-Value', align: 'start', key: 'pvalue' },
+  { text: 'Metric', align: 'start', value: 'key' },
+  { text: 'Coefficient', align: 'start', value: 'coefficient' },
+  { text: 'P-Value', align: 'start', value: 'pvalue' },
 ]);
 
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const goBack = () => {
+  router.push({ name: "/" });
+};
 // 数据请求参数
 const params = ref({
   scoreWeight: 0.5,
@@ -248,12 +254,12 @@ const fetchData = async () => {
 const renderTimeGapChart = (data: any[]) => {
   const chart = echarts.init(timeGapChart.value);
   const option = {
-    grid: {
-      top: '10%',      // 上边距，向上移动条形图
-      bottom: '30%',   // 下边距
-      left: '10%',     // 左边距
-      right: '5%'     // 右边距
-    },
+    // grid: {
+    //   top: '10%',      // 上边距，向上移动条形图
+    //   bottom: '30%',   // 下边距
+    //   left: '10%',     // 左边距
+    //   right: '5%'     // 右边距
+    // },
     xAxis: {
       type: "category",
       data: data.map(d => `${d.rangeStart}-${d.rangeEnd}`),

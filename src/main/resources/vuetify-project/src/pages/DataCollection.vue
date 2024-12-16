@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="goBack">Back to Index</v-btn>
     <!-- Page Title -->
     <br>
     <v-img
@@ -193,6 +194,9 @@ export default {
       } catch (error) {
         console.error('Error fetching data:', error);
       }
+    },
+    goBack() {
+      this.$router.push('/');
     },
   },
 };

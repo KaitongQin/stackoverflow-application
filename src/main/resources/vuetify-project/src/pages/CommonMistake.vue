@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="goBack">Back to Index</v-btn>
     <br>
     <v-img
       class="mb-4"
@@ -20,7 +21,7 @@
             <mi style="color: #f8ee37;">
               Number_of_questions
             </mi>
-            <mo> and </mo>
+            <mo> and</mo>
             <mi style="color: #b275e3;">
               Average_views
             </mi>
@@ -69,6 +70,9 @@
           min="0"
           max="1"
           step="0.01"
+          append-icon="mdi-numeric"
+          append-icon-cb="() => {}"
+          thumb-label
         ></v-slider>
       </v-col>
       <v-col cols="12" sm="6">
@@ -78,6 +82,9 @@
           min="6"
           max="20"
           step="1"
+          append-icon="mdi-numeric"
+          append-icon-cb="() => {}"
+          thumb-label
         ></v-slider>
       </v-col>
     </v-row>
@@ -115,7 +122,7 @@
         <v-card style="background-color: #333">
           <v-card-title style="color: #fff"/>
           <v-card-text>
-            <div id="pieChart" style="height: 400px;" />
+            <div id="pieChart" style="height: 400px;"/>
           </v-card-text>
         </v-card>
       </v-col>
@@ -126,7 +133,7 @@
       <!-- 第二行左侧 Card (WeightedScore Histogram) -->
       <v-col cols="6">
         <v-card style="background-color: #333; color: #fff">
-          <v-card-title> </v-card-title>
+          <v-card-title></v-card-title>
           <v-card-text>
             <div id="barChartFrequency" style="height: 380px;"></div>
           </v-card-text>
@@ -136,7 +143,7 @@
       <!-- 第二行右侧 Card (Frequency Histogram) -->
       <v-col cols="6">
         <v-card style="background-color: #333; color: #fff">
-          <v-card-title> </v-card-title>
+          <v-card-title></v-card-title>
           <v-card-text>
             <div id="barChartAvgView" style="height: 380px;"></div>
           </v-card-text>
@@ -169,7 +176,7 @@ export default {
     async fetchTopics() {
       try {
         const response = await axios.get('/api/v1/error', {
-          params: { weight: this.w, n: this.N, filter: this.filter },
+          params: {weight: this.w, n: this.N, filter: this.filter},
         });
         const data = response.data;
         this.updateCharts(data);
@@ -187,15 +194,15 @@ export default {
         title: {
           text: 'Mistake Distribution',
           left: 'center',
-          textStyle: { color: '#fff' }
+          textStyle: {color: '#fff'}
         },
-        tooltip: { trigger: 'item' },
+        tooltip: {trigger: 'item'},
         legend: {
           orient: 'vertical',   // This makes the legend vertical
           left: 0,         // Auto left alignment
           right: 'auto',             // Align to the right side
           top: 'center',        // Center vertically
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
         },
         series: [{
           name: 'Topics',
@@ -203,7 +210,7 @@ export default {
           radius: '70%',
           center: ['72%', '55%'], // 将饼图中心水平向左移动，原始默认值为 ['50%', '50%']
           data: [],
-          label: { color: '#fff' }
+          label: {color: '#fff'}
         }],
         backgroundColor: '#333',
       });
@@ -212,11 +219,11 @@ export default {
         title: {
           text: 'Number of Questions',
           left: 'center',
-          textStyle: { color: '#fff' }
+          textStyle: {color: '#fff'}
         },
         tooltip: {
           trigger: "axis",
-          textStyle: { color: "#FFFFFF" }, // Tooltip文字颜色
+          textStyle: {color: "#FFFFFF"}, // Tooltip文字颜色
           backgroundColor: "rgba(50, 50, 50, 0.9)", // Tooltip背景颜色
         },
         grid: {
@@ -228,16 +235,16 @@ export default {
         xAxis: {
           type: 'category',
           data: [],
-          axisLabel: { rotate: 30, color: '#fff' },
+          axisLabel: {rotate: 30, color: '#fff'},
           axisTick: {
             alignWithLabel: true
           }
         },
-        yAxis: { type: 'value' },
+        yAxis: {type: 'value'},
         series: [{
           type: 'bar',
           data: [],
-          itemStyle: { color: '#f8ee37' }
+          itemStyle: {color: '#f8ee37'}
         }],
         backgroundColor: '#333',
       });
@@ -247,11 +254,11 @@ export default {
         title: {
           text: 'Average View Count',
           left: 'center',
-          textStyle: { color: '#fff' }
+          textStyle: {color: '#fff'}
         },
         tooltip: {
           trigger: "axis",
-          textStyle: { color: "#FFFFFF" }, // Tooltip文字颜色
+          textStyle: {color: "#FFFFFF"}, // Tooltip文字颜色
           backgroundColor: "rgba(50, 50, 50, 0.9)", // Tooltip背景颜色
         },
         grid: {
@@ -263,32 +270,36 @@ export default {
         xAxis: {
           type: 'category',
           data: [],
-          axisLabel: { rotate: 30, color: '#fff' }
+          axisLabel: {rotate: 30, color: '#fff'}
         },
-        yAxis: { type: 'value' },
+        yAxis: {type: 'value'},
         series: [{
           type: 'bar',
           data: [],
-          itemStyle: { color: '#b275e3' }
+          itemStyle: {color: '#b275e3'}
         }],
         backgroundColor: '#333',
       });
 
     },
     updateCharts(topics) {
-      const pieData = topics.map((topic) => ({ value: topic.normalizedWeightedScore, name: topic.errorName, errorType: topic.errorType }));
+      const pieData = topics.map((topic) => ({
+        value: topic.normalizedWeightedScore,
+        name: topic.errorName,
+        errorType: topic.errorType
+      }));
       const categories = topics.map((topic) => topic.errorName);
       const frequencies = topics.map((topic) => topic.baseFrequency);
       const avgViews = topics.map((topic) => topic.avgViewCount);
       const type = topics.map((topic) => topic.errorType);
 
       this.pieChart.setOption({
-        series: [{ data: pieData }],
+        series: [{data: pieData}],
         tooltip: {
           trigger: "item",
           formatter: (params) => {
             // 提取参数中的信息
-            const { name, value, data } = params;
+            const {name, value, data} = params;
             return `
           <strong>Error Name:</strong> ${name}<br/>
           <strong>Weighted Score:</strong> ${value}<br/>
@@ -299,8 +310,8 @@ export default {
       });
       const updateBarChart = (chart, data, seriesData, errorTypeData) => {
         chart.setOption({
-          xAxis: { data },
-          series: [{ data: seriesData }],
+          xAxis: {data},
+          series: [{data: seriesData}],
           tooltip: {
             formatter: (params) => {
               const index = params[0].dataIndex;
@@ -316,6 +327,9 @@ export default {
 
       updateBarChart(barChartFrequency, categories, frequencies, type);
       updateBarChart(barChartAvgView, categories, avgViews, type);
+    },
+    goBack() {
+      this.$router.push('/');
     },
   },
   mounted() {

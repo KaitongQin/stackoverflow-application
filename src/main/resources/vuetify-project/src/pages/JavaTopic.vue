@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="goBack">Back to Index</v-btn>
     <br>
     <v-img
       class="mb-4"
@@ -63,6 +64,9 @@
           min="0"
           max="1"
           step="0.01"
+          append-icon="mdi-numeric"
+          append-icon-cb="() => {}"
+          thumb-label
         ></v-slider>
       </v-col>
       <v-col cols="12" sm="6">
@@ -72,6 +76,9 @@
           min="6"
           max="20"
           step="1"
+          append-icon="mdi-numeric"
+          append-icon-cb="() => {}"
+          thumb-label
         ></v-slider>
       </v-col>
     </v-row>
@@ -213,6 +220,9 @@ export default {
       this.pieChart.setOption({ series: [{ data: pieData }] });
       barChartFrequency.setOption({ xAxis: { data: categories }, series: [{ data: frequencies }] });
       barChartAvgView.setOption({ xAxis: { data: categories }, series: [{ data: avgViews }] });
+    },
+    goBack() {
+      this.$router.push('/');
     },
   },
   mounted() {

@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="goBack">Back to Index</v-btn>
     <v-row>
       <!-- Topic Query -->
       <v-col cols="6">
@@ -227,6 +228,9 @@ export default {
         console.error("Error querying top exceptions:", error);
         this.errorResult = JSON.stringify({ error: "Error fetching data." });
       }
+    },
+    goBack() {
+      this.$router.push('/');
     },
   },
 };

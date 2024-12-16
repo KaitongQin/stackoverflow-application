@@ -35,7 +35,7 @@ public class ErrorService {
         }
         return errorDTOMapper.getTopNJavaTopics(1) // 直接获取全部数据
                 .stream()
-                .filter(error -> error.getErrorName().equals(filter)) // 只保留名称完全匹配的项
+                .filter(error -> error.getErrorName().equalsIgnoreCase(filter)) // 只保留名称完全匹配的项（忽略大小写）
                 .toList();
     }
 }

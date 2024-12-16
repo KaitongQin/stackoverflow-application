@@ -19,50 +19,42 @@ public interface ErrorDTOMapper {
                     SELECT
                         eo.error_type AS error_name,
                         e.severity AS error_type,
-                        COUNT(q.id) AS base_frequency,            -- 标签问题的数量
-                        AVG(q.view_count) AS avg_view_count       -- 标签问题的平均浏览量
+                        COUNT(eo.error_type) AS base_frequency,
+                        AVG(q.view_count) AS avg_view_count
                     FROM error_occurrence eo
                              JOIN question q ON eo.question_id = q.id
                              JOIN error e ON e.name = eo.error_type
                     GROUP BY eo.error_type, e.severity
-                ),
-                mean_std_values AS (
+                )
+                SELECT
+                    es.error_name,
+                    es.error_type,
+                    es.base_frequency,
+                    es.avg_view_count,
+                    -- Z-score归一化
+                    (#{w1} * ((es.base_frequency - mv.mean_base_frequency) / NULLIF(mv.std_base_frequency, 0)) +
+                     (1 - #{w1}) * ((es.avg_view_count - mv.mean_avg_view_count) / NULLIF(mv.std_avg_view_count, 0))) AS weightedScore,
+                    -- 归一化到 [0, 1] 区间
+                    ( (#{w1} * ((es.base_frequency - mv.mean_base_frequency) / NULLIF(mv.std_base_frequency, 0)) +
+                        (1 - #{w1}) * ((es.avg_view_count - mv.mean_avg_view_count) / NULLIF(mv.std_avg_view_count, 0)))\s
+                        - MIN(#{w1} * ((es.base_frequency - mv.mean_base_frequency) / NULLIF(mv.std_base_frequency, 0)) +
+                              (1 - #{w1}) * ((es.avg_view_count - mv.mean_avg_view_count) / NULLIF(mv.std_avg_view_count, 0))) OVER ()
+                    ) / NULLIF(
+                        MAX(#{w1} * ((es.base_frequency - mv.mean_base_frequency) / NULLIF(mv.std_base_frequency, 0)) +
+                            (1 - #{w1}) * ((es.avg_view_count - mv.mean_avg_view_count) / NULLIF(mv.std_avg_view_count, 0))) OVER () -
+                        MIN(#{w1} * ((es.base_frequency - mv.mean_base_frequency) / NULLIF(mv.std_base_frequency, 0)) +
+                            (1 - #{w1}) * ((es.avg_view_count - mv.mean_avg_view_count) / NULLIF(mv.std_avg_view_count, 0))) OVER (), 0
+                    ) AS normalizedWeightedScore
+                FROM error_stats es
+                CROSS JOIN (
                     SELECT
                         AVG(base_frequency) AS mean_base_frequency,
                         STDDEV(base_frequency) AS std_base_frequency,
                         AVG(avg_view_count) AS mean_avg_view_count,
                         STDDEV(avg_view_count) AS std_avg_view_count
                     FROM error_stats
-                ),
-                normalized_stats AS (
-                    SELECT
-                        es.error_name,
-                        es.error_type,
-                        es.base_frequency,
-                        es.avg_view_count,
-                        -- Z-score归一化
-                        (es.base_frequency - mv.mean_base_frequency) / NULLIF(mv.std_base_frequency, 0) AS b1,
-                        (es.avg_view_count - mv.mean_avg_view_count) / NULLIF(mv.std_avg_view_count, 0) AS a1
-                    FROM error_stats es, mean_std_values mv
-                ),
-                weighted_scores AS (
-                    SELECT
-                        error_name,                                        -- 标签名称
-                        error_type,
-                        base_frequency,                                    -- 原始基础频率
-                        avg_view_count,                                    -- 原始平均浏览量
-                        #{w1} * b1 + (1 - #{w1}) * a1 AS weightedScore        -- 计算加权分数
-                    FROM normalized_stats
-                )
-                SELECT
-                    error_name,
-                    error_type,
-                    base_frequency,
-                    avg_view_count,
-                    (weightedScore - MIN(weightedScore) OVER ()) / NULLIF(MAX(weightedScore) OVER () - MIN(weightedScore) OVER (), 0) AS normalizedWeightedScore  -- 归一化到[0, 1]区间
-                FROM weighted_scores
-                ORDER BY normalizedWeightedScore DESC;                          -- 按归一化后的加权分数降序排序
-
+                ) mv
+                ORDER BY normalizedWeightedScore DESC;
             """)
     List<ErrorDTO> getTopNJavaTopics(@Param("w1") float w1);
 }

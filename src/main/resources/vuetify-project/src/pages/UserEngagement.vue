@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="goBack">Back to Index</v-btn>
     <br>
     <v-img
       class="mb-4"
@@ -106,6 +107,9 @@
           min="4"
           max="10"
           step="1"
+          append-icon="mdi-numeric"
+          append-icon-cb="() => {}"
+          thumb-label
         ></v-slider>
       </v-col>
       <v-col cols="12" sm="6">
@@ -115,6 +119,9 @@
           min="500"
           max="100000"
           step="50"
+          append-icon="mdi-numeric"
+          append-icon-cb="() => {}"
+          thumb-label
         ></v-slider>
       </v-col>
     </v-row>
@@ -136,7 +143,7 @@
         <v-card style="background-color: #333">
           <v-card-title style="color: #fff"/>
           <v-card-text>
-            <div id="AllData" style="height: 500px;" />
+            <div id="AllData" style="height: 500px;"/>
           </v-card-text>
         </v-card>
       </v-col>
@@ -144,7 +151,7 @@
         <v-card style="background-color: #333">
           <v-card-title style="color: #fff"/>
           <v-card-text>
-            <div id="HighReputation" style="height: 500px;" />
+            <div id="HighReputation" style="height: 500px;"/>
           </v-card-text>
         </v-card>
       </v-col>
@@ -155,7 +162,7 @@
         <v-card style="background-color: #333; color: #fff">
           <v-card-title/>
           <v-card-text>
-            <div id="AllChart" style="height: 610px;" />
+            <div id="AllChart" style="height: 610px;"/>
           </v-card-text>
         </v-card>
       </v-col>
@@ -163,7 +170,7 @@
         <v-card style="background-color: #333; color: #fff">
           <v-card-title></v-card-title>
           <v-card-text>
-            <div id="HighReputationChart" style="height: 610px;" />
+            <div id="HighReputationChart" style="height: 610px;"/>
           </v-card-text>
         </v-card>
       </v-col>
@@ -190,7 +197,7 @@ export default {
     async fetchData() {
       try {
         const response = await axios.get("/api/v1/participation", {
-          params: { n: this.n, R: this.R },
+          params: {n: this.n, R: this.R},
         });
         const data = response.data;
         console.log(data);
@@ -207,13 +214,13 @@ export default {
 
       // Pie chart initialization
       this.AllData.setOption({
-        title: { text: 'Top Total Engagement', left: 'left', textStyle: { color: '#fff' } },
-        tooltip: { trigger: 'item' },
+        title: {text: 'Top Total Engagement', left: 'left', textStyle: {color: '#fff'}},
+        tooltip: {trigger: 'item'},
         legend: {
           orient: 'horizontal',
           left: 'auto',
           bottom: 0,
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
         },
         series: [
           {
@@ -221,20 +228,20 @@ export default {
             type: 'pie',
             radius: '50%',
             data: [],
-            label: { color: '#fff' },
+            label: {color: '#fff'},
           },
         ],
         backgroundColor: '#333',
       });
 
       this.HighReputation.setOption({
-        title: { text: 'Top HighReputation Engagement', left: 'left', textStyle: { color: '#fff' } },
-        tooltip: { trigger: 'item' },
+        title: {text: 'Top HighReputation Engagement', left: 'left', textStyle: {color: '#fff'}},
+        tooltip: {trigger: 'item'},
         legend: {
           orient: 'horizontal',
           left: 'auto',
           bottom: 0,
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
         },
         series: [
           {
@@ -242,7 +249,7 @@ export default {
             type: 'pie',
             radius: '50%',
             data: [],
-            label: { color: '#fff' },
+            label: {color: '#fff'},
           },
         ],
         backgroundColor: '#333',
@@ -252,12 +259,12 @@ export default {
       AllChart.setOption({
         title: {
           text: 'Overall Engagement Metrics',
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
           left: 'center' // 标题居中
         },
         tooltip: {
           trigger: "axis",
-          textStyle: { color: "#FFFFFF" }, // Tooltip文字颜色
+          textStyle: {color: "#FFFFFF"}, // Tooltip文字颜色
           backgroundColor: "rgba(50, 50, 50, 0.9)", // Tooltip背景颜色
         },
         grid: {
@@ -268,7 +275,7 @@ export default {
         },
         legend: {
           data: ['AnswerNum', 'CommentNum', 'RevisionNum', 'VoteNum'],
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
           bottom: -5,    // 图例放到下方
           left: 'center' // 图例居中
         },
@@ -280,12 +287,12 @@ export default {
             rotate: 45  // 让标签倾斜45度
           },
         },
-        yAxis: { type: 'value', axisLabel: { color: '#fff' } },
+        yAxis: {type: 'value', axisLabel: {color: '#fff'}},
         series: [
-          { name: 'AnswerNum', type: 'bar', data: [], itemStyle: { color: '#377af8' } },
-          { name: 'CommentNum', type: 'bar', data: [], itemStyle: { color: '#7be375' } },
-          { name: 'RevisionNum', type: 'bar', data: [], itemStyle: { color: '#fa8b0c' } },
-          { name: 'VoteNum', type: 'bar', data: [], itemStyle: { color: '#b275e3' } },
+          {name: 'AnswerNum', type: 'bar', data: [], itemStyle: {color: '#377af8'}},
+          {name: 'CommentNum', type: 'bar', data: [], itemStyle: {color: '#7be375'}},
+          {name: 'RevisionNum', type: 'bar', data: [], itemStyle: {color: '#fa8b0c'}},
+          {name: 'VoteNum', type: 'bar', data: [], itemStyle: {color: '#b275e3'}},
         ],
         backgroundColor: '#333',
       });
@@ -293,12 +300,12 @@ export default {
       HighReputationChart.setOption({
         title: {
           text: 'High Reputation Engagement Metrics',
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
           left: 'center' // 标题居中
         },
         tooltip: {
           trigger: "axis",
-          textStyle: { color: "#FFFFFF" }, // Tooltip文字颜色
+          textStyle: {color: "#FFFFFF"}, // Tooltip文字颜色
           backgroundColor: "rgba(50, 50, 50, 0.9)", // Tooltip背景颜色
         },
         grid: {
@@ -309,21 +316,21 @@ export default {
         },
         legend: {
           data: ['AnswerNum', 'CommentNum', 'RevisionNum', 'VoteNum'],
-          textStyle: { color: '#fff' },
+          textStyle: {color: '#fff'},
           bottom: -5,    // 图例放到下方
           left: 'center' // 图例居中
         },
         xAxis: {
           type: 'category',
           data: [],
-          axisLabel: { rotate: 45, color: '#fff' },
+          axisLabel: {rotate: 45, color: '#fff'},
         },
-        yAxis: { type: 'value', axisLabel: { color: '#fff' } },
+        yAxis: {type: 'value', axisLabel: {color: '#fff'}},
         series: [
-          { name: 'AnswerNum', type: 'bar', data: [], itemStyle: { color: '#377af8' } },
-          { name: 'CommentNum', type: 'bar', data: [], itemStyle: { color: '#7be375' } },
-          { name: 'RevisionNum', type: 'bar', data: [], itemStyle: { color: '#fa8b0c' } },
-          { name: 'VoteNum', type: 'bar', data: [], itemStyle: { color: '#b275e3' } },
+          {name: 'AnswerNum', type: 'bar', data: [], itemStyle: {color: '#377af8'}},
+          {name: 'CommentNum', type: 'bar', data: [], itemStyle: {color: '#7be375'}},
+          {name: 'RevisionNum', type: 'bar', data: [], itemStyle: {color: '#fa8b0c'}},
+          {name: 'VoteNum', type: 'bar', data: [], itemStyle: {color: '#b275e3'}},
         ],
         backgroundColor: '#333',
       });
@@ -331,14 +338,14 @@ export default {
     },
     updateCharts(data) {
       // Pie chart data
-      const AllData_data = data.map((topic) => ({ value: topic.engagementScore, name: topic.tagName }));
+      const AllData_data = data.map((topic) => ({value: topic.engagementScore, name: topic.tagName}));
       const HighReputation_data = data.map((topic) => ({
         value: topic.highReputationEngagementScore,
         name: topic.highReputationTagName,
       }));
 
-      this.AllData.setOption({ series: [{ data: AllData_data }] });
-      this.HighReputation.setOption({ series: [{ data: HighReputation_data }] });
+      this.AllData.setOption({series: [{data: AllData_data}]});
+      this.HighReputation.setOption({series: [{data: HighReputation_data}]});
 
       // Bar chart data
       const tagNames = data.map((topic) => topic.tagName);
@@ -348,12 +355,12 @@ export default {
       const voteNums = data.map((topic) => topic.voteNum);
 
       AllChart.setOption({
-        xAxis: { data: tagNames },
+        xAxis: {data: tagNames},
         series: [
-          { name: 'AnswerNum', data: answerNums },
-          { name: 'CommentNum', data: commentNums },
-          { name: 'RevisionNum', data: revisionNums },
-          { name: 'VoteNum', data: voteNums },
+          {name: 'AnswerNum', data: answerNums},
+          {name: 'CommentNum', data: commentNums},
+          {name: 'RevisionNum', data: revisionNums},
+          {name: 'VoteNum', data: voteNums},
         ],
       });
 
@@ -364,14 +371,17 @@ export default {
       const highRepVoteNums = data.map((topic) => topic.highReputationVoteNum);
 
       HighReputationChart.setOption({
-        xAxis: { data: highRepTagNames },
+        xAxis: {data: highRepTagNames},
         series: [
-          { name: 'AnswerNum', data: highRepAnswerNums },
-          { name: 'CommentNum', data: highRepCommentNums },
-          { name: 'RevisionNum', data: highRepRevisionNums },
-          { name: 'VoteNum', data: highRepVoteNums },
+          {name: 'AnswerNum', data: highRepAnswerNums},
+          {name: 'CommentNum', data: highRepCommentNums},
+          {name: 'RevisionNum', data: highRepRevisionNums},
+          {name: 'VoteNum', data: highRepVoteNums},
         ],
       });
+    },
+    goBack() {
+      this.$router.push('/');
     },
   },
   mounted() {
