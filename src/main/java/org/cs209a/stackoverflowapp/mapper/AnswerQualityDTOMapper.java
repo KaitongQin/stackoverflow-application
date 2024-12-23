@@ -102,9 +102,9 @@ public interface AnswerQualityDTOMapper {
                                 ELSE true END
                             AND
                             CASE WHEN #{params.maxAnswerLength} IS NOT NULL
-                                THEN a.body_length <= #{params.maxAnswerLength} 
+                                THEN a.body_length <= #{params.maxAnswerLength}
                                 ELSE true END
-                            AND CASE WHEN #{params.maxTimeGap} IS NOT NULL 
+                            AND CASE WHEN #{params.maxTimeGap} IS NOT NULL
                                 THEN EXTRACT(EPOCH FROM (a.creation_date - q.creation_date)) <= #{params.maxTimeGap} 
                                 ELSE true END
                         ORDER BY a.creation_date DESC

@@ -10,22 +10,29 @@ public interface ErrorDTOMapper {
     /**
      * 获取前 N 个错误，根据加权分数排序
      *
-     * @param n 需要返回的标签数量
      * @param w1 加权因子
      * @return 前 N 个错误及其加权分数和频率
      */
     @Select("""
-                WITH error_stats AS (
-                    SELECT
-                        eo.error_type AS error_name,
-                        e.severity AS error_type,
-                        COUNT(eo.error_type) AS base_frequency,
-                        AVG(q.view_count) AS avg_view_count
-                    FROM error_occurrence eo
-                             JOIN question q ON eo.question_id = q.id
-                             JOIN error e ON e.name = eo.error_type
-                    GROUP BY eo.error_type, e.severity
-                )
+                WITH base_error_counts AS (
+                     SELECT\s
+                         error_type,\s
+                         COUNT(*) AS base_frequency
+                     FROM error_occurrence
+                     GROUP BY error_type
+                 ),
+                 error_stats AS (
+                     SELECT
+                         eo.error_type AS error_name,
+                         e.severity AS error_type,
+                         bec.base_frequency,  -- 引用子查询的结果
+                         AVG(q.view_count) AS avg_view_count
+                     FROM error_occurrence eo
+                              JOIN question q ON eo.question_id = q.id
+                              JOIN error e ON e.name = eo.error_type
+                              JOIN base_error_counts bec ON eo.error_type = bec.error_type
+                     GROUP BY eo.error_type, e.severity, bec.base_frequency
+                 )
                 SELECT
                     es.error_name,
                     es.error_type,

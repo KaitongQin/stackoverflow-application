@@ -42,7 +42,8 @@
           v-model.number="params.maxResults"
           label="Max Results"
           type="number"
-          min="1"
+          min="100"
+          step="100"
         ></v-text-field>
       </v-col>
 
@@ -79,6 +80,7 @@
           label="Min Answer Length"
           type="number"
           min="0"
+          step="100"
         ></v-text-field>
       </v-col>
 
@@ -87,7 +89,8 @@
           v-model.number="params.maxAnswerLength"
           label="Max Answer Length"
           type="number"
-          min="1"
+          min="100"
+          step="100"
         ></v-text-field>
       </v-col>
 
@@ -97,6 +100,7 @@
           label="Max Time Gap"
           type="number"
           min="0"
+          step="10000"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -119,8 +123,6 @@
           <v-data-table
             :headers="basicStatsHeaders"
             :items="Object.entries(basicStats)"
-            item-value="value"
-            item-text="key"
             dense
             hide-default-footer
           >
@@ -132,12 +134,9 @@
             </template>
           </v-data-table>
 
-          <h2 class="text-h5 mt-4 text-center">Correlation</h2>
           <v-data-table
             :headers="correlationHeaders"
             :items="Object.entries(correlations)"
-            item-value="value"
-            item-text="key"
             dense
             hide-default-footer
           >
@@ -149,6 +148,9 @@
               </tr>
             </template>
           </v-data-table>
+          <br>
+          <br>
+          <br>
         </v-card>
       </v-col>
 
@@ -156,7 +158,7 @@
       <v-col cols="12" md="6">
         <v-card class="pa-4" outlined>
           <h2 class="text-h5 text-center">Time Gap VS Quality Score</h2>
-          <div ref="timeGapChart" style="width: 100%; height: 492px;"></div>
+          <div ref="timeGapChart" style="width: 100%; height: 495px;"></div>
         </v-card>
       </v-col>
 
@@ -195,14 +197,39 @@ const correlations = ref<any>({});
 
 // 表格头部信息
 const basicStatsHeaders = ref([
-  { text: 'Metric', align: 'start', value: 'key' },
-  { text: 'Value', align: 'start', value: 'value' },
+  {
+    title: 'Metric',
+    align: 'start',
+    key: 'key',
+    sortable: false,
+  },
+  {
+    title: 'Value',
+    align: 'start',
+    key: 'value',
+    sortable: false,
+  },
 ]);
 
 const correlationHeaders = ref([
-  { text: 'Metric', align: 'start', value: 'key' },
-  { text: 'Coefficient', align: 'start', value: 'coefficient' },
-  { text: 'P-Value', align: 'start', value: 'pvalue' },
+  {
+    title: 'Metric',
+    align: 'start',
+    key: 'key',
+    sortable: false,
+  },
+  {
+    title: 'Coefficient',
+    align: 'start',
+    key: 'coefficient',
+    sortable: false,
+  },
+  {
+    title: 'P-Value',
+    align: 'start',
+    key: 'pvalue',
+    sortable: false,
+  },
 ]);
 
 import { useRouter } from 'vue-router';
